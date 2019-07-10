@@ -24,6 +24,7 @@
             android:src="@mipmap/ic_launcher" />
 
         <LinearLayout
+            android:id="@+id/ll"
             android:padding="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -70,6 +71,26 @@
 
 
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtPrice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/car_image"
+            android:layout_marginLeft="72dp"
+            android:layout_marginTop="37dp"
+            android:layout_toRightOf="@id/ll"
+            android:text="Price" />
+
+        <TextView
+            android:id="@+id/txtPriceLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/car_image"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="37dp"
+            android:layout_toRightOf="@id/ll"
+            android:text="Per Day" />
 
 
     </RelativeLayout>

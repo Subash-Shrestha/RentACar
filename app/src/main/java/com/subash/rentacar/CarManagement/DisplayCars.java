@@ -3,6 +3,7 @@ package com.subash.rentacar.CarManagement;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -39,6 +41,7 @@ public class DisplayCars extends AppCompatActivity {
 
     @BindView(R.id.car_container)
     RecyclerView friendList;
+
 
     private FirebaseFirestore db;
     private FirestoreRecyclerAdapter adapter;
@@ -76,24 +79,30 @@ public class DisplayCars extends AppCompatActivity {
                 holder.carTitle.setText(model.getCarTitle());
                 holder.registrationNo.setText(model.getRegistrationNo());
                 holder.uploadedBy.setText(model.getUploadedBy());
+                holder.textView.setText(model.getPrice());
                 Glide.with(getApplicationContext())
                         .load(model.getImage()).placeholder(R.drawable.carimage).into(holder.imageView);
+
 
                 holder.itemView.setOnClickListener(v -> {
                     Snackbar.make(friendList, model.getRegistrationNo() + ", " + model.getBrand() + " at " + model.getModel(), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
 
-                    Intent intent = new Intent(DisplayCars.this, CarDetail.class);
+                    Intent intent = new Intent(DisplayCars.this, UserCarDetail.class);
                     Bundle bucket = new Bundle();
                     bucket.putString("Brand", model.getBrand());
                     bucket.putString("Image", model.getImage());
                     bucket.putString("Title", model.getCarTitle());
+                    bucket.putString("Model", model.getModel());
                     bucket.putString("RegistrationNo", model.getRegistrationNo());
+                    bucket.putString("Price", model.getPrice());
                     intent.putExtras(bucket);
                     startActivity(intent);
 
                 });
+
             }
+
 
             @NonNull
             @Override
@@ -104,14 +113,18 @@ public class DisplayCars extends AppCompatActivity {
                 return new CarHolder(view);
             }
 
+
             @Override
             public void onError(FirebaseFirestoreException e) {
                 Log.e("error", e.getMessage());
             }
+
+
         };
 
         adapter.notifyDataSetChanged();
         friendList.setAdapter(adapter);
+
     }
 
     public class CarHolder extends RecyclerView.ViewHolder {
@@ -123,6 +136,9 @@ public class DisplayCars extends AppCompatActivity {
         ImageView imageView;
         @BindView(R.id.uploadedBy)
         TextView uploadedBy;
+
+        @BindView(R.id.txtPrice)
+        TextView textView;
 
         public CarHolder(View itemView) {
             super(itemView);

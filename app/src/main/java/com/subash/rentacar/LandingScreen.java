@@ -150,6 +150,10 @@ public class LandingScreen extends AppCompatActivity
 
         } else if (id == R.id.nav_SignOut) {
 
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(LandingScreen.this, LoginActivity.class);
+            startActivity(intent);
+
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -178,6 +182,7 @@ public class LandingScreen extends AppCompatActivity
                 holder.carTitle.setText(model.getCarTitle());
                 holder.registrationNo.setText(model.getRegistrationNo());
                 holder.uploadedBy.setText(model.getUploadedBy());
+                holder.textView.setText(model.getPrice());
                 Glide.with(getApplicationContext())
                         .load(model.getImage()).placeholder(R.drawable.carimage).into(holder.imageView);
 
@@ -191,6 +196,8 @@ public class LandingScreen extends AppCompatActivity
                     bucket.putString("Image", model.getImage());
                     bucket.putString("Title", model.getCarTitle());
                     bucket.putString("RegistrationNo", model.getRegistrationNo());
+                    bucket.putString("UploadedBy",model.getUploadedBy());
+                    bucket.putString("Price", model.getPrice());
                     intent.putExtras(bucket);
                     startActivity(intent);
 
@@ -225,6 +232,9 @@ public class LandingScreen extends AppCompatActivity
         ImageView imageView;
         @BindView(R.id.uploadedBy)
         TextView uploadedBy;
+
+        @BindView(R.id.txtPrice)
+        TextView textView;
 
         public CarHolder(View itemView) {
             super(itemView);

@@ -95,6 +95,7 @@ public class MyBookings extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 bookingHolder.carBookingTitle.setText(myBookingModel.getCarTitle());
                 bookingHolder.registrationNo.setText(myBookingModel.getRegistrationNo());
+                bookingHolder.uploadedBy.setText(myBookingModel.getUploadedBy());
 
             }
         };
@@ -108,6 +109,8 @@ public class MyBookings extends AppCompatActivity {
         TextView carBookingTitle;
         @BindView(R.id.bookingRegistrationNo)
         TextView registrationNo;
+        @BindView(R.id.bookingUploadedBy)
+        TextView uploadedBy;
 
         public BookingHolder(View itemView) {
             super(itemView);

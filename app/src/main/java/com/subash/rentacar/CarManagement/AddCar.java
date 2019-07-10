@@ -1,39 +1,30 @@
 package com.subash.rentacar.CarManagement;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.subash.rentacar.R;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -51,9 +42,11 @@ public class AddCar extends AppCompatActivity {
     private Uri mImageUri = null;
     private FirebaseUser user;
     private ImageView mImageView;
-    private EditText edtRegistrationNo, edtModel, edtBrand;
+    private EditText edtRegistrationNo, edtModel, edtBrand, edtPrice;
     private final int PICK_IMAGE_REQUEST = 71;
+    private static final int CAMERA_REQUEST_CODE=111;
     private String downloadUri;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,26 +56,28 @@ public class AddCar extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addCarDetail();
-            }
-        });
+        fab.setOnClickListener(view -> addCarDetail());
         imageButton = findViewById(R.id.imageButton);
         edtRegistrationNo = findViewById(R.id.edtRegistrationNo);
         edtBrand = findViewById(R.id.edtBrand);
         edtModel = findViewById(R.id.edtModel);
+        edtPrice = findViewById(R.id.edtPrice);
         mImageView = findViewById(R.id.imageView);
 
         mStorage = FirebaseStorage.getInstance().getReference();
         db = FirebaseFirestore.getInstance();
 
         imageButton.setOnClickListener(v -> {
-            Intent intent = new Intent();
+
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (takePictureIntent.resolveActivity(this.getPackageManager()) != null) {
+                startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
+            }
+
+            /*Intent intent = new Intent();
             intent.setType("image/*");
             intent.setAction(Intent.ACTION_GET_CONTENT);
-            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+            startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);*/
         });
 
     }
@@ -90,14 +85,25 @@ public class AddCar extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
-                && data != null && data.getData() != null) {
-            mImageUri = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mImageUri);
-                mImageView.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
+
+        if(requestCode == CAMERA_REQUEST_CODE && resultCode == RESULT_OK) {
+
+            CropImage.activity(mImageUri)
+                    .setGuidelines(CropImageView.Guidelines.ON)
+                    .setAspectRatio(1, 1)
+                    .start(this);
+        }
+
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+
+                mImageView.setImageURI(resultUri);
+                mImageUri = resultUri;
+
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
             }
         }
     }
@@ -106,10 +112,11 @@ public class AddCar extends AppCompatActivity {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Uploading...");
         progressDialog.show();
-        final String registrationNo, model, brand;
+        final String registrationNo, model, brand, price;
         registrationNo = edtRegistrationNo.getText().toString().trim();
         model = edtModel.getText().toString().trim();
         brand = edtBrand.getText().toString().trim();
+        price = edtPrice.getText().toString().trim();
         user = FirebaseAuth.getInstance().getCurrentUser();
         Date c = Calendar.getInstance().getTime();
 
@@ -138,11 +145,11 @@ public class AddCar extends AppCompatActivity {
                 newCar.put("RegistrationNo", registrationNo);
                 newCar.put("Model", model);
                 newCar.put("Brand", brand);
+                newCar.put("Price", price);
                 newCar.put("UploadedOn", formattedDate);
                 newCar.put("UploadedBy", Objects.requireNonNull(user.getEmail()));
                 assert downloadUri != null;
                 newCar.put("Image", downloadUri);
-
 
                 db.collection("Cars").document(user.getUid()).collection("CarCollection").document(brand + "-" + model).set(newCar)
                         .addOnSuccessListener(aVoid -> {

@@ -1,9 +1,7 @@
 package com.subash.rentacar;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -99,8 +97,6 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 Toast.makeText(LoginActivity.this, "User Registered", Toast.LENGTH_SHORT).show();
-                Vibrator vibrator =(Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                vibrator.vibrate(500);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

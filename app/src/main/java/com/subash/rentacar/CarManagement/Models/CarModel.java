@@ -9,6 +9,7 @@ public class CarModel {
     private String Brand;
     private String Image;
     private String Model;
+    private String Price;
     private String RegistrationNo;
     private String UploadedBy;
     private String UploadedOn;
@@ -18,7 +19,15 @@ public class CarModel {
 
     }
 
-    public CarModel(String carTitle, String brand, String image, String model, String registrationNo, String uploadedBy, String uploadedOn) {
+    public String getPrice() {
+        return Price;
+    }
+
+    public void setPrice(String price) {
+        Price = price;
+    }
+
+    public CarModel(String carTitle, String price, String brand, String image, String model, String registrationNo, String uploadedBy, String uploadedOn) {
         CarTitle = carTitle;
         Brand = brand;
         Image = image;
@@ -26,6 +35,8 @@ public class CarModel {
         RegistrationNo = registrationNo;
         UploadedBy = uploadedBy;
         UploadedOn = uploadedOn;
+        Price = price;
+
     }
 
     public String getCarTitle() {
